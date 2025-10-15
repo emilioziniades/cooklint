@@ -30,8 +30,8 @@ fn main() -> anyhow::Result<()> {
 
     let recipes = get_all_recipes(recipes_dir.clone());
 
-    if recipes.len() == 0 {
-        return Err(anyhow!("No recipes found in {:?}", recipes_dir));
+    if recipes.is_empty() {
+        return Err(anyhow!("No recipes found in {}", recipes_dir.display()));
     }
 
     let (parsed_recipes, parse_failures) = parse_recipes(&recipes, &parser);
@@ -81,14 +81,14 @@ fn main() -> anyhow::Result<()> {
 fn get_all_recipes(dir: PathBuf) -> Vec<String> {
     WalkDir::new(dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file() && e.path().extension() == Some(OsStr::new("cook")))
         .map(|e| e.path().to_path_buf())
         .map(|pb| fs::read_to_string(pb).unwrap())
         .collect()
 }
 
-fn parse_recipes(recipes: &Vec<String>, parser: &CooklangParser) -> (Vec<Recipe>, Vec<String>) {
+fn parse_recipes(recipes: &[String], parser: &CooklangParser) -> (Vec<Recipe>, Vec<String>) {
     recipes
         .iter()
         .map(|r| parser.parse(r).into_result())
@@ -106,7 +106,6 @@ fn find_duplicate_ingredients(
     ingredients
         .iter()
         .combinations(2)
-        .into_iter()
         .map(|is| (is[0].clone(), is[1].clone()))
         .filter(|(i0, i1)| levenshtein::levenshtein(i0, i1) <= min_distance)
         .filter(|(i0, i1)| {
