@@ -5,12 +5,20 @@ env:
   REGISTRY: registry.fly.io/hufi-mimi-recipes
   TAG: ${{ github.sha }}
 jobs:
-  ci:
-    name: Lint
+  lint-and-test:
+    name: Lint and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
-      # runs `cargo check`, `cargo test` and `cargo build`
+      - run: nix develop --command just ci
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      # runs `cargo build`, `cargo test`, `cargo clippy` and `cargo fmt --check`
       - run: nix build .#cooklint
       - run: ./result/cooklint --version

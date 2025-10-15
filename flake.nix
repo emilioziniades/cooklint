@@ -26,16 +26,6 @@
           name = "cooklint";
           src = ./.;
           cargoHash = "sha256-UFMb4i+F87wbpAxe2MSTm53k+UfWSz1sMA4oSbF1cko=";
-
-          nativeCheckInputs = with pkgs; [
-            clippy
-            rustfmt
-          ];
-
-          preCheck = ''
-            cargo clippy
-            cargo fmt --check
-          '';
         };
       });
 
