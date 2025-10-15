@@ -24,11 +24,17 @@
       packages = forEachSystem (pkgs: {
         cooklint = pkgs.rustPlatform.buildRustPackage {
           name = "cooklint";
-          src = ./cooklint;
+          src = ./.;
           cargoHash = "sha256-UFMb4i+F87wbpAxe2MSTm53k+UfWSz1sMA4oSbF1cko=";
 
-          preBuild = ''
-            cargo check
+          nativeCheckInputs = with pkgs; [
+            clippy
+            rustfmt
+          ];
+
+          preCheck = ''
+            cargo clippy
+            cargo fmt --check
           '';
         };
       });
@@ -39,6 +45,8 @@
             just
             cargo
             rustc
+            clippy
+            rustfmt
           ];
         };
       });
